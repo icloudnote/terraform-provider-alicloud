@@ -122,7 +122,7 @@ func resourceAlicloudArmsDispatchRule() *schema.Resource {
 									"notify_type": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: validation.StringInSlice([]string{"ARMS_CONTACT", "ARMS_CONTACT_GROUP"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"ARMS_ROBOT", "ARMS_CONTACT", "ARMS_CONTACT_GROUP"}, false),
 									},
 									"name": {
 										Type:     schema.TypeString,
@@ -214,7 +214,7 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 			for _, notifyObjects := range notifyRulesArg["notify_objects"].(*schema.Set).List() {
 				notifyObjectsArg := notifyObjects.(map[string]interface{})
 				notifyObjectsMap := map[string]interface{}{
-					"notifyType":     notifyObjectsArg["notify_type"],
+					"notifyType":     convertArmsDispatchRuleNotifyTypeRequest(notifyObjectsArg["notify_type"]),
 					"name":           notifyObjectsArg["name"],
 					"notifyObjectId": notifyObjectsArg["notify_object_id"],
 				}
@@ -415,7 +415,7 @@ func resourceAlicloudArmsDispatchRuleUpdate(d *schema.ResourceData, meta interfa
 			for _, notifyObjects := range notifyRulesArg["notify_objects"].(*schema.Set).List() {
 				notifyObjectsArg := notifyObjects.(map[string]interface{})
 				notifyObjectsMap := map[string]interface{}{
-					"notifyType":     notifyObjectsArg["notify_type"],
+					"notifyType":     convertArmsDispatchRuleNotifyTypeRequest(notifyObjectsArg["notify_type"]),
 					"name":           notifyObjectsArg["name"],
 					"notifyObjectId": notifyObjectsArg["notify_object_id"],
 				}
@@ -490,10 +490,19 @@ func resourceAlicloudArmsDispatchRuleDelete(d *schema.ResourceData, meta interfa
 	}
 	return nil
 }
+func convertArmsDispatchRuleNotifyTypeRequest(source interface{}) interface{} {
+	switch source {
+	case "ARMS_ROBOT":
+		return "DING_ROBOT_GROUP"
+	}
+	return source
+}
 func convertArmsDispatchRuleNotifyTypeResponse(source interface{}) interface{} {
 	switch source {
 	case "CONTACT":
 		return "ARMS_CONTACT"
+	case "DING_ROBOT_GROUP":
+		return "ARMS_ROBOT"
 	case "CONTACT_GROUP":
 		return "ARMS_CONTACT_GROUP"
 	}
