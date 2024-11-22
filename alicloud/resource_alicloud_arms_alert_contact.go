@@ -48,7 +48,7 @@ func resourceAlicloudArmsAlertContact() *schema.Resource {
 func resourceAlicloudArmsAlertContactCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 	var response map[string]interface{}
-	action := "CreateAlertContact"
+	action := "CreateOrUpdateContact"
 	request := make(map[string]interface{})
 	conn, err := client.NewArmsClient()
 	if err != nil {
@@ -58,7 +58,7 @@ func resourceAlicloudArmsAlertContactCreate(d *schema.ResourceData, meta interfa
 		request["ContactName"] = v
 	}
 	if v, ok := d.GetOk("ding_robot_webhook_url"); ok {
-		request["DingRobotWebhookUrl"] = v
+		request["DingRobotUrl"] = v
 	} else if v, ok := d.GetOk("email"); ok && v.(string) == "" {
 		if v, ok := d.GetOk("phone_num"); ok && v.(string) == "" {
 			return WrapError(fmt.Errorf("attribute '%s' is required when '%s' is %v and '%s' is %v ", "ding_robot_webhook_url", "email", d.Get("email"), "phone_num", d.Get("phone_num")))
@@ -72,7 +72,7 @@ func resourceAlicloudArmsAlertContactCreate(d *schema.ResourceData, meta interfa
 		}
 	}
 	if v, ok := d.GetOk("phone_num"); ok {
-		request["PhoneNum"] = v
+		request["Phone"] = v
 	} else if v, ok := d.GetOk("ding_robot_webhook_url"); ok && v.(string) == "" {
 		if v, ok := d.GetOk("email"); ok && v.(string) == "" {
 			return WrapError(fmt.Errorf("attribute '%s' is required when '%s' is %v and '%s' is %v ", "phone_num", "ding_robot_webhook_url", d.Get("ding_robot_webhook_url"), "email", d.Get("email")))
