@@ -175,7 +175,9 @@ func TestAccAlicloudARMSDispatchRule_basic(t *testing.T) {
 									"name":             "${var.name}",
 								},
 							},
-							"notify_channels": []string{"dingTalk", "wechat"},
+							"notify_channels":   []string{"dingTalk", "wechat"},
+							"notify_start_time": "00:00",
+							"notify_end_time":   "23:59",
 						},
 					},
 				}),
@@ -232,7 +234,9 @@ func TestAccAlicloudARMSDispatchRule_basic(t *testing.T) {
 									"name":             "${var.name}",
 								},
 							},
-							"notify_channels": []string{"dingTalk"},
+							"notify_channels":   []string{"dingTalk"},
+							"notify_start_time": "00:00",
+							"notify_end_time":   "23:59",
 						},
 					},
 				}),
@@ -317,7 +321,9 @@ func TestAccAlicloudARMSDispatchRule_basic(t *testing.T) {
 									"name":             "${var.name}",
 								},
 							},
-							"notify_channels": []string{"dingTalk", "wechat"},
+							"notify_channels":   []string{"dingTalk", "wechat"},
+							"notify_start_time": "00:00",
+							"notify_end_time":   "23:59",
 						},
 					},
 				}),
@@ -353,6 +359,11 @@ variable "name" {
 resource "alicloud_arms_alert_contact" "default" {
   alert_contact_name = "${var.name}"
   email = "${var.name}@aaa.com"
+}
+resource "alicloud_arms_alert_robot" "default" {
+  alert_robot_name = "test-dingding"
+  alert_robot_type = "dingding"
+  alert_robot_addr = "https://oapi.dingtalk.com/robot/send?access_token=1c704e23"
 }
 resource "alicloud_arms_alert_contact_group" "default" {
   alert_contact_group_name = "${var.name}"
@@ -403,6 +414,8 @@ func TestUnitAlicloudARMSDispatchRule(t *testing.T) {
 						"notify_type":      "CreateDispatchRuleValue",
 					},
 				},
+				"notify_start_time": "00:00",
+				"notify_end_time":   "23:59",
 			},
 		},
 	}
@@ -466,6 +479,8 @@ func TestUnitAlicloudARMSDispatchRule(t *testing.T) {
 							"NotifyType":     "CreateDispatchRuleValue",
 						},
 					},
+					"notifyStartTime": "00:00",
+					"notifyEndTime":   "23:59",
 				},
 			},
 			"State": "DefaultValue",
@@ -601,6 +616,8 @@ func TestUnitAlicloudARMSDispatchRule(t *testing.T) {
 							"notify_type":      "UpdateDispatchRuleValue",
 						},
 					},
+					"notify_start_time": "00:00",
+					"notify_end_time":   "23:59",
 				},
 			},
 		}
@@ -651,6 +668,8 @@ func TestUnitAlicloudARMSDispatchRule(t *testing.T) {
 								"NotifyType":     "UpdateDispatchRuleValue",
 							},
 						},
+						"notifyStartTime": "01:00",
+						"notifyEndTime":   "10:00",
 					},
 				},
 			},

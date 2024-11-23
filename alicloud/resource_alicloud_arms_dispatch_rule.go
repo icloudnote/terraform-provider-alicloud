@@ -136,6 +136,14 @@ func resourceAlicloudArmsDispatchRule() *schema.Resource {
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"notify_start_time": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"notify_end_time": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
 					},
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
@@ -221,8 +229,10 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 				notifyObjectsMaps = append(notifyObjectsMaps, notifyObjectsMap)
 			}
 			notifyRulesMap := map[string]interface{}{
-				"notifyObjects":  notifyObjectsMaps,
-				"notifyChannels": notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyObjects":   notifyObjectsMaps,
+				"notifyChannels":  notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyStartTime": notifyRulesArg["notify_start_time"],
+				"notifyEndTime":   notifyRulesArg["notify_end_time"],
 			}
 			notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 		}
@@ -422,8 +432,10 @@ func resourceAlicloudArmsDispatchRuleUpdate(d *schema.ResourceData, meta interfa
 				notifyObjectsMaps = append(notifyObjectsMaps, notifyObjectsMap)
 			}
 			notifyRulesMap := map[string]interface{}{
-				"notifyObjects":  notifyObjectsMaps,
-				"notifyChannels": notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyObjects":   notifyObjectsMaps,
+				"notifyChannels":  notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyStartTime": notifyRulesArg["notify_start_time"],
+				"notifyEndTime":   notifyRulesArg["notify_end_time"],
 			}
 			notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 		}
