@@ -150,6 +150,54 @@ func resourceAlicloudArmsDispatchRule() *schema.Resource {
 					return d.Get("dispatch_type").(string) == "DISCARD_ALERT"
 				},
 			},
+			"notify_template": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"email_title": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"email_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"email_recover_title": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"email_recover_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"sms_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"sms_recover_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"tts_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"tts_recover_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"robot_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"robot_recover_content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"dispatch_rule_name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -239,6 +287,26 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 		dispatchRuleMap["notifyRules"] = notifyRulesMaps
 	}
 
+	if v, ok := d.GetOk("notify_template"); ok {
+		for _, groupRules := range v.(*schema.Set).List() {
+			notifyTemplateArg := groupRules.(map[string]interface{})
+			notifyTemplateMap := map[string]interface{}{
+				"emailTitle":          notifyTemplateArg["email_title"],
+				"emailContent":        notifyTemplateArg["email_content"],
+				"emailRecoverTitle":   notifyTemplateArg["email_recover_title"],
+				"emailRecoverContent": notifyTemplateArg["email_recover_content"],
+				"ttsContent":          notifyTemplateArg["tts_content"],
+				"ttsRecoverContent":   notifyTemplateArg["tts_recover_content"],
+				"smsContent":          notifyTemplateArg["sms_content"],
+				"smsRecoverContent":   notifyTemplateArg["sms_recover_content"],
+				"dingContent":         notifyTemplateArg["robot_content"],
+				"dingRecoverContent":  notifyTemplateArg["robot_recover_content"],
+			}
+			dispatchRuleMap["notifyTemplate"] = notifyTemplateMap
+		}
+	}
+
+	fmt.Printf("----->>>> key: %+v\n, notifyTemplateMaps: %+v\n", "xx", dispatchRuleMap)
 	if v, ok := d.GetOk("dispatch_rule_name"); ok {
 		dispatchRuleMap["name"] = v
 	}
@@ -345,10 +413,23 @@ func resourceAlicloudArmsDispatchRuleRead(d *schema.ResourceData, meta interface
 				}
 				notifyRulesMap["notify_objects"] = notifyObjectsMaps
 				notifyRulesMap["notify_channels"] = notifyRulesItemMap["NotifyChannels"]
+				// if data not exist, set default value to 00:00
+				if _, ok := notifyRulesItemMap["NotifyStartTime"]; !ok {
+					notifyRulesMap["notify_channels"] = "00:00"
+				}
+				// if data not exist, set default value to 23:59
+				if _, ok := notifyRulesItemMap["NotifyEndTime"]; !ok {
+					notifyRulesMap["notify_channels"] = "23:59"
+				}
 				notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 			}
 		}
 		d.Set("notify_rules", notifyRulesMaps)
+	}
+
+	if notifyTemplate, ok := object["NotifyTemplate"]; ok && notifyTemplate != nil {
+		notifyTemplateMaps := object["NotifyTemplate"].(map[string]interface{})
+		d.Set("notify_template", notifyTemplateMaps)
 	}
 
 	d.Set("dispatch_rule_name", object["Name"])
@@ -442,6 +523,26 @@ func resourceAlicloudArmsDispatchRuleUpdate(d *schema.ResourceData, meta interfa
 		dispatchRuleMap["notifyRules"] = notifyRulesMaps
 	}
 
+	if v, ok := d.GetOk("notify_template"); ok {
+		for _, groupRules := range v.(*schema.Set).List() {
+			notifyTemplateArg := groupRules.(map[string]interface{})
+			notifyTemplateMap := map[string]interface{}{
+				"emailTitle":          notifyTemplateArg["email_title"],
+				"emailContent":        notifyTemplateArg["email_content"],
+				"emailRecoverTitle":   notifyTemplateArg["email_recover_title"],
+				"emailRecoverContent": notifyTemplateArg["email_recover_content"],
+				"ttsContent":          notifyTemplateArg["tts_content"],
+				"ttsRecoverContent":   notifyTemplateArg["tts_recover_content"],
+				"smsContent":          notifyTemplateArg["sms_content"],
+				"smsRecoverContent":   notifyTemplateArg["sms_recover_content"],
+				"dingContent":         notifyTemplateArg["robot_content"],
+				"dingRecoverContent":  notifyTemplateArg["robot_recover_content"],
+			}
+			dispatchRuleMap["notifyTemplate"] = notifyTemplateMap
+		}
+	}
+
+	fmt.Printf("====>>>>===xxxxxxxxxxxx: %+v\n", dispatchRuleMap)
 	if v, ok := d.GetOk("dispatch_rule_name"); ok {
 		dispatchRuleMap["name"] = v
 	}
@@ -517,6 +618,25 @@ func convertArmsDispatchRuleNotifyTypeResponse(source interface{}) interface{} {
 		return "ARMS_ROBOT"
 	case "CONTACT_GROUP":
 		return "ARMS_CONTACT_GROUP"
+	}
+	return source
+}
+
+func convertArmsDispatchRuleNotifyTemplateRequest(source interface{}) interface{} {
+	switch source {
+	case "robot_content":
+		return "ding_content"
+	case "robot_recover_content":
+		return "ding_recover_content"
+	}
+	return source
+}
+func convertArmsDispatchRuleNotifyTemplateResponse(source interface{}) interface{} {
+	switch source {
+	case "dingContent":
+		return "dingContent"
+	case "dingRecoverContent":
+		return "dingRecoverContent"
 	}
 	return source
 }

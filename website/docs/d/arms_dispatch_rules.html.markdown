@@ -70,5 +70,6 @@ The following attributes are exported in addition to the arguments listed above:
 			* `notify_object_id` - The ID of the contact or contact group.
 			* `name` - The name of the contact or contact group.
 			* `notify_type` - The type of the alert contact.
-			
   		* `notify_channels` - The notification method.
+		* `notify_start_time` - Start time of notification.
+		* `notify_end_time` - End time of notification.
