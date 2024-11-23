@@ -239,6 +239,43 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 		dispatchRuleMap["notifyRules"] = notifyRulesMaps
 	}
 
+	if v, ok := d.GetOk("notify_template"); ok {
+		tmpl := v.(map[string]interface{})
+		notifyTemplateMaps := map[string]interface{}{}
+
+		if value, ok := tmpl["email_title"]; ok {
+			notifyTemplateMaps["emailTitle"] = value
+		}
+		if value, ok := tmpl["email_content"]; ok {
+			notifyTemplateMaps["emailContent"] = value
+		}
+		if value, ok := tmpl["email_recover_title"]; ok {
+			notifyTemplateMaps["emailRecoverTitle"] = value
+		}
+		if value, ok := tmpl["email_recover_content"]; ok {
+			notifyTemplateMaps["emailRecoverContent"] = value
+		}
+		if value, ok := tmpl["sms_content"]; ok {
+			notifyTemplateMaps["smsContent"] = value
+		}
+		if value, ok := tmpl["sms_recover_content"]; ok {
+			notifyTemplateMaps["smsRecoverContent"] = value
+		}
+		if value, ok := tmpl["tts_content"]; ok {
+			notifyTemplateMaps["ttsContent"] = value
+		}
+		if value, ok := tmpl["tts_recover_content"]; ok {
+			notifyTemplateMaps["ttsRecoverContent"] = value
+		}
+		if value, ok := tmpl["robot_content"]; ok {
+			notifyTemplateMaps["dingContent"] = value
+		}
+		if value, ok := tmpl["robot_recover_content"]; ok {
+			notifyTemplateMaps["dingRecoverContent"] = value
+		}
+		dispatchRuleMap["notifyTemplate"] = notifyTemplateMaps
+	}
+
 	if v, ok := d.GetOk("dispatch_rule_name"); ok {
 		dispatchRuleMap["name"] = v
 	}
@@ -345,10 +382,23 @@ func resourceAlicloudArmsDispatchRuleRead(d *schema.ResourceData, meta interface
 				}
 				notifyRulesMap["notify_objects"] = notifyObjectsMaps
 				notifyRulesMap["notify_channels"] = notifyRulesItemMap["NotifyChannels"]
+				// if data not exist, set default value to 00:00
+				if _, ok := notifyRulesItemMap["NotifyStartTime"]; !ok {
+					notifyRulesMap["notify_channels"] = "00:00"
+				}
+				// if data not exist, set default value to 23:59
+				if _, ok := notifyRulesItemMap["NotifyEndTime"]; !ok {
+					notifyRulesMap["notify_channels"] = "23:59"
+				}
 				notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 			}
 		}
 		d.Set("notify_rules", notifyRulesMaps)
+	}
+
+	if notifyTemplate, ok := object["notifyTemplate"]; ok && notifyTemplate != nil {
+		notifyTemplateMaps := object["notifyTemplate"].(map[string]interface{})
+		d.Set("notify_template", notifyTemplateMaps)
 	}
 
 	d.Set("dispatch_rule_name", object["Name"])
@@ -444,6 +494,10 @@ func resourceAlicloudArmsDispatchRuleUpdate(d *schema.ResourceData, meta interfa
 
 	if v, ok := d.GetOk("dispatch_rule_name"); ok {
 		dispatchRuleMap["name"] = v
+	}
+
+	if v, ok := d.GetOk("notify_template"); ok {
+		dispatchRuleMap["notifyTemplate"] = v
 	}
 
 	request["RegionId"] = client.RegionId
