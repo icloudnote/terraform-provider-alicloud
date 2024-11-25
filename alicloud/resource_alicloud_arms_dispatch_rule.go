@@ -136,6 +136,14 @@ func resourceAlicloudArmsDispatchRule() *schema.Resource {
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"notify_start_time": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"notify_end_time": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
 					},
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
@@ -221,8 +229,10 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 				notifyObjectsMaps = append(notifyObjectsMaps, notifyObjectsMap)
 			}
 			notifyRulesMap := map[string]interface{}{
-				"notifyObjects":  notifyObjectsMaps,
-				"notifyChannels": notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyObjects":   notifyObjectsMaps,
+				"notifyChannels":  notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyStartTime": notifyRulesArg["notify_start_time"],
+				"notifyEndTime":   notifyRulesArg["notify_end_time"],
 			}
 			notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 		}
@@ -261,6 +271,7 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 
 	return resourceAlicloudArmsDispatchRuleRead(d, meta)
 }
+
 func resourceAlicloudArmsDispatchRuleRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 	armsService := ArmsService{client}
@@ -273,6 +284,17 @@ func resourceAlicloudArmsDispatchRuleRead(d *schema.ResourceData, meta interface
 		}
 		return WrapError(err)
 	}
+
+	notificationPolicy, err := armsService.DescribeArmsNotificationPolicy(object["Name"].(string))
+	if err != nil {
+		if NotFoundError(err) {
+			log.Printf("[DEBUG] Resource alicloud_arms_dispatch_rule armsService.DescribeArmsNotificationPolicy Failed!!! %s", err)
+			d.SetId("")
+			return nil
+		}
+		return WrapError(err)
+	}
+
 	if groupRulesList, ok := object["GroupRules"]; ok && groupRulesList != nil {
 		groupRulesMaps := make([]map[string]interface{}, 0)
 		for _, groupRulesListItem := range groupRulesList.([]interface{}) {
@@ -335,6 +357,10 @@ func resourceAlicloudArmsDispatchRuleRead(d *schema.ResourceData, meta interface
 				}
 				notifyRulesMap["notify_objects"] = notifyObjectsMaps
 				notifyRulesMap["notify_channels"] = notifyRulesItemMap["NotifyChannels"]
+
+				notifyRule := notificationPolicy["NotifyRule"].(map[string]interface{})
+				notifyRulesMap["notify_start_time"] = notifyRule["NotifyStartTime"]
+				notifyRulesMap["notify_end_time"] = notifyRule["NotifyEndTime"]
 				notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 			}
 		}
@@ -422,8 +448,10 @@ func resourceAlicloudArmsDispatchRuleUpdate(d *schema.ResourceData, meta interfa
 				notifyObjectsMaps = append(notifyObjectsMaps, notifyObjectsMap)
 			}
 			notifyRulesMap := map[string]interface{}{
-				"notifyObjects":  notifyObjectsMaps,
-				"notifyChannels": notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyObjects":   notifyObjectsMaps,
+				"notifyChannels":  notifyRulesArg["notify_channels"].([]interface{}),
+				"notifyStartTime": notifyRulesArg["notify_start_time"],
+				"notifyEndTime":   notifyRulesArg["notify_end_time"],
 			}
 			notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 		}

@@ -199,6 +199,57 @@ func (s *ArmsService) DescribeArmsPrometheusAlertRule(id string) (object map[str
 	return object, nil
 }
 
+func (s *ArmsService) DescribeArmsNotificationPolicy(name string) (object map[string]interface{}, err error) {
+	conn, err := s.client.NewArmsClient()
+	if err != nil {
+		return object, WrapError(err)
+	}
+
+	request := map[string]interface{}{
+		"Name":     name,
+		"Page":     1,
+		"Size":     PageSizeXLarge,
+		"IsDetail": true,
+		"RegionId": s.client.RegionId,
+	}
+
+	var response map[string]interface{}
+	action := "ListNotificationPolicies"
+	runtime := util.RuntimeOptions{}
+	runtime.SetAutoretry(true)
+	wait := incrementalWait(3*time.Second, 3*time.Second)
+	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+		resp, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-08-08"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+		if err != nil {
+			if NeedRetry(err) {
+				wait()
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		response = resp
+		addDebug(action, resp, request)
+		return nil
+	})
+	if err != nil {
+		return object, WrapErrorf(err, DefaultErrorMsg, name, action, AlibabaCloudSdkGoERROR)
+	}
+	v, err := jsonpath.Get("$.PageBean.NotificationPolicies", response)
+	if err != nil {
+		return object, WrapErrorf(err, FailedGetAttributeMsg, name, "$.PageBean.NotificationPolicies", response)
+	}
+
+	if len(v.([]interface{})) < 1 {
+		return object, WrapErrorf(Error(GetNotFoundMessage("ARMS", name)), NotFoundWithResponse, response)
+	} else {
+		if fmt.Sprint(v.([]interface{})[0].(map[string]interface{})["Name"]) != name {
+			return object, WrapErrorf(Error(GetNotFoundMessage("ARMS", name)), NotFoundWithResponse, response)
+		}
+	}
+	object = v.([]interface{})[0].(map[string]interface{})
+	return object, nil
+}
+
 func (s *ArmsService) ArmsDispatchRuleStateRefreshFunc(d *schema.ResourceData, failStates []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		object, err := s.DescribeArmsDispatchRule(d.Id())
