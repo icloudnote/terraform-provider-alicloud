@@ -306,7 +306,6 @@ func resourceAlicloudArmsDispatchRuleCreate(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	fmt.Printf("----->>>> key: %+v\n, notifyTemplateMaps: %+v\n", "xx", dispatchRuleMap)
 	if v, ok := d.GetOk("dispatch_rule_name"); ok {
 		dispatchRuleMap["name"] = v
 	}
@@ -415,11 +414,11 @@ func resourceAlicloudArmsDispatchRuleRead(d *schema.ResourceData, meta interface
 				notifyRulesMap["notify_channels"] = notifyRulesItemMap["NotifyChannels"]
 				// if data not exist, set default value to 00:00
 				if _, ok := notifyRulesItemMap["NotifyStartTime"]; !ok {
-					notifyRulesMap["notify_channels"] = "00:00"
+					notifyRulesMap["notify_start_time"] = "00:00"
 				}
 				// if data not exist, set default value to 23:59
 				if _, ok := notifyRulesItemMap["NotifyEndTime"]; !ok {
-					notifyRulesMap["notify_channels"] = "23:59"
+					notifyRulesMap["notify_end_time"] = "23:59"
 				}
 				notifyRulesMaps = append(notifyRulesMaps, notifyRulesMap)
 			}
@@ -542,7 +541,6 @@ func resourceAlicloudArmsDispatchRuleUpdate(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	fmt.Printf("====>>>>===xxxxxxxxxxxx: %+v\n", dispatchRuleMap)
 	if v, ok := d.GetOk("dispatch_rule_name"); ok {
 		dispatchRuleMap["name"] = v
 	}
