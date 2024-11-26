@@ -178,20 +178,20 @@ func TestAccAlicloudARMSDispatchRule_basic(t *testing.T) {
 							"notify_channels": []string{"dingTalk", "wechat"},
 						},
 					},
-					//"notify_template": []map[string]interface{}{
-					//	{
-					//		"email_title":           "CreateEmailTitle",
-					//		"email_content":         "CreateEmailContent",
-					//		"email_recover_title":   "CreateEmailRecoverTitle",
-					//		"email_recover_content": "CreateEmailRecoverContent",
-					//		"sms_content":           "CreateSmsContent",
-					//		"sms_recover_content":   "CreateSmsRecoverContent",
-					//		"tts_content":           "CreateTtsContent",
-					//		"tts_recover_content":   "CreateTtsRecoverContent",
-					//		"robot_content":         "CreateRobotContent",
-					//		"robot_recover_content": "CreateRobotRecoverContent",
-					//	},
-					//},
+					"notify_template": []map[string]interface{}{
+						{
+							"email_title":           "CreateEmailTitle",
+							"email_content":         "CreateEmailContent",
+							"email_recover_title":   "CreateEmailRecoverTitle",
+							"email_recover_content": "CreateEmailRecoverContent",
+							"sms_content":           "CreateSmsContent",
+							"sms_recover_content":   "CreateSmsRecoverContent",
+							"tts_content":           "CreateTtsContent",
+							"tts_recover_content":   "CreateTtsRecoverContent",
+							"robot_content":         "CreateRobotContent",
+							//"robot_recover_content": "CreateRobotRecoverContent",
+						},
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -469,7 +469,7 @@ func TestUnitAlicloudARMSDispatchRule(t *testing.T) {
 				"tts_content":           "CreateTtsContent",
 				"tts_recover_content":   "CreateTtsRecoverContent",
 				"robot_content":         "CreateRobotContent",
-				"robot_recover_content": "CreateRobotRecoverContent",
+				//"robot_recover_content": "CreateRobotRecoverContent",
 			},
 		},
 	}
