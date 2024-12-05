@@ -42,8 +42,7 @@ resource "alicloud_arms_dispatch_rule" "default" {
     group_wait_time = 5
     group_interval  = 15
     repeat_interval = 100
-    grouping_fields = [
-    "alertname"]
+    grouping_fields = ["alertname"]
   }
   label_match_expression_grid {
     label_match_expression_groups {
@@ -67,8 +66,21 @@ resource "alicloud_arms_dispatch_rule" "default" {
       name             = "example_value"
     }
     notify_channels   = ["dingTalk", "wechat"]
-    notify_start_time = "10:00"
-    notify_end_time   = "23:00"
+    notify_start_time = "00:00"
+    notify_end_time   = "23:59"
+  }
+
+  notify_template {
+    email_title           = "example_email_title"
+    email_content         = "example_email_content"
+    email_recover_title   = "example_email_recover_title"
+    email_recover_content = "example_email_recover_content"
+    sms_content           = "example_sms_content"
+    sms_recover_content   = "example_sms_recover_content"
+    tts_content           = "example_tts_content"
+    tts_recover_content   = "example_tts_recover_content"
+    robot_content         = "example_robot_content"
+    robot_recover_content = "example_robot_recover_content"
   }
 }
 ```
@@ -83,6 +95,7 @@ The following arguments are supported:
 * `group_rules` - (Required) Sets the event group. See [`group_rules`](#group_rules) below. It will be ignored  when `dispatch_type = "DISCARD_ALERT"`.
 * `label_match_expression_grid` - (Required) Sets the dispatch rule. See [`label_match_expression_grid`](#label_match_expression_grid) below. 
 * `notify_rules` - (Required) Sets the notification rule. See [`notify_rules`](#notify_rules) below. It will be ignored  when `dispatch_type = "DISCARD_ALERT"`.
+* `notify_template` - (Optional) Sets the notification template. See [`notify_template`](#notify_template) below.
 
 ### `group_rules`
 The group_rules supports the following:
@@ -128,6 +141,19 @@ The notify_rules supports the following:
 * `notify_channels` - (Required, List<String>) The notification method. Valid values: dingTalk, sms, webhook, email, and wechat.
 * `notify_start_time` - (Required) Start time of notification.
 * `notify_end_time` - (Required) End time of notification.
+
+### `notify_template`
+The notify_template supports the following:
+* `email_title` - (Required) The title of the email notification.
+* `email_content` - (Required) The content of the email notification.
+* `email_recover_title` - (Required) The title of the email notification for restored alerts.
+* `email_recover_content` - (Required) The content of the email notification for restored alerts.
+* `sms_content` - (Required) The content of the SMS notification.
+* `sms_recover_content` - (Required) The content of the SMS notification for restored alerts.
+* `tts_content` - (Required) The content of the TTS notification.
+* `tts_recover_content` - (Required) The content of the TTS notification for restored alerts.
+* `robot_content` - (Required) The content of the robot notification.
+* `robot_recover_content` - (Required) The content of the robot notification for restored alerts.
 
 ### `notify_rules-notify_objects`
 The notify_objects supports the following:
